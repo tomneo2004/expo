@@ -99,6 +99,7 @@ The following methods are exported by the `expo-notifications` module:
   - [`removeAllPushTokenListeners`](#removeallpushtokenlisteners-void) -- removes all listeners registered with `addPushTokenListener`
 - **listening to notification events**
   - [`useInitialNotificationResponse`](#useinitialnotificationresponse-undefined--notificationresponse--null) -- a React hook returning a notification response responsible for opening the application
+  - [`useLastNotificationResponse`](#uselastnotificationresponse-undefined--notificationresponse--null) -- a React hook returning notification response that has been received most recently
   - [`addNotificationReceivedListener`](#addnotificationreceivedlistenerlistener-event-notification--void-void) -- adds a listener called whenever a new notification is received
   - [`addNotificationsDroppedListener`](#addnotificationsdroppedlistenerlistener---void-void) -- adds a listener called whenever some notifications have been dropped
   - [`addNotificationResponseReceivedListener`](#addnotificationresponsereceivedlistenerlistener-event-notificationresponse--void-void) -- adds a listener called whenever user interacts with a notification
@@ -401,32 +402,6 @@ The hook may return values of three types/values:
 
 #### Examples
 
-Responding to a notification tap by opening the URL that could be put into notification data (this is your, developer's responsibility and is not a part of Expo API)
-
-```ts
-import * as Notifications from 'expo-notifications';
-import { Linking } from 'react-native';
-
-export default function App() {
-  const initialNotificationResponse = Notifications.useInitialNotificationResponse();
-  React.useEffect(() => {
-    if (
-      initialNotificationResponse &&
-      initialNotificationResponse.notification.data.url &&
-      initialNotificationResponse.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER
-    ) {
-      Linking.openURL(initialNotificationResponse.notification.data.url);
-    }
-  }, [initialNotificationResponse]);
-
-  return (
-    /*
-     * your app
-     */
-  );
-}
-```
-
 Rendering the application only once we know whether the application was opened as an effect of interacting with a notification (rendering `null` is a good way to keep the splash screen present only if you have `expo-splash-screen` integrated)
 
 ```tsx
@@ -448,6 +423,46 @@ export default function App() {
   }
 
   // Use the initialNotificationResponse when setting up initial navigation state
+  return (
+    /*
+     * your app
+     */
+  );
+}
+```
+
+### `useLastNotificationResponse(): undefined | NotificationResponse | null`
+
+A React hook always returning the notification response that was received the most recently (notification response designates an interaction with a notification, eg. tapping on it).
+
+#### Returns
+
+The hook may return values of three types/values:
+
+- `undefined` -- until we're sure that we haven't missed any notification responses (situation equivalent to `undefined` returned from [`useInitialNotificationResponse`](#useinitialnotificationresponse-undefined--notificationresponse--null))
+- `null` -- if no notification response has been received yet
+- an object of [`NotificationResponse`](#notificationresponse) type -- notification response received the most recently
+
+#### Examples
+
+Responding to a notification tap by opening the URL that could be put into notification data (this is your, developer's responsibility and is not a part of Expo API)
+
+```tsx
+import * as Notifications from 'expo-notifications';
+import { Linking } from 'react-native';
+
+export default function App() {
+  const lastNotificationResponse = Notifications.useLastNotificationResponse();
+  React.useEffect(() => {
+    if (
+      lastNotificationResponse &&
+      lastNotificationResponse.notification.data.url &&
+      lastNotificationResponse.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER
+    ) {
+      Linking.openURL(lastNotificationResponse.notification.data.url);
+    }
+  }, [lastNotificationResponse]);
+
   return (
     /*
      * your app
