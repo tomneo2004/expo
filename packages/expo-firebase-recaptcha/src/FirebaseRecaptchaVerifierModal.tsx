@@ -23,6 +23,7 @@ interface State {
   visibleLoaded: boolean;
   invisibleLoaded: boolean;
   invisibleVerify: boolean;
+  invisibleKey: number;
   resolve?: (token: string) => void;
   reject?: (error: Error) => void;
 }
@@ -39,6 +40,7 @@ export default class FirebaseRecaptchaVerifierModal extends React.Component<Prop
     visibleLoaded: false,
     invisibleLoaded: false,
     invisibleVerify: false,
+    invisibleKey: 1,
     resolve: undefined,
     reject: undefined,
   };
@@ -111,10 +113,12 @@ export default class FirebaseRecaptchaVerifierModal extends React.Component<Prop
     if (resolve) {
       resolve(token);
     }
-    this.setState({
+    this.setState(state => ({
       visible: false,
       invisibleVerify: false,
-    });
+      invisibleLoaded: false,
+      invisibleKey: state.invisibleKey + 1,
+    }));
   };
 
   cancel = () => {
@@ -139,12 +143,13 @@ export default class FirebaseRecaptchaVerifierModal extends React.Component<Prop
 
   render() {
     const { title, cancelLabel, invisible, ...otherProps } = this.props;
-    const { visible, visibleLoaded, invisibleLoaded, invisibleVerify } = this.state;
+    const { visible, visibleLoaded, invisibleLoaded, invisibleVerify, invisibleKey } = this.state;
     return (
       <View style={styles.container}>
         {invisible && (
           <FirebaseRecaptcha
             {...otherProps}
+            key={`invisible${invisibleKey}`}
             style={styles.invisible}
             onLoad={this.onInvisibleLoad}
             onError={this.onError}
