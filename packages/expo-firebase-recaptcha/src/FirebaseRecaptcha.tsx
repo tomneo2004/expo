@@ -89,7 +89,12 @@ function getWebviewSource(
           var iframes = document.getElementsByTagName("iframe");
           var isFullChallenge = false;
           for (i = 0; i < iframes.length; i++) {
-            isFullChallenge = isFullChallenge || (iframes[i].title === 'recaptcha challenge');
+            var parentWindow = iframes[i].parentNode ? iframes[i].parentNode.parentNode : undefined;
+            var isHidden = parentWindow && parentWindow.style.opacity == 0;
+            isFullChallenge = isFullChallenge || (
+              !isHidden && 
+              ((iframes[i].title === 'recaptcha challenge') ||
+               (iframes[i].src.indexOf('google.com/recaptcha/api2/bframe') >= 0)));
           }
           if (isFullChallenge) {
             clearInterval(fullChallengeTimer);
