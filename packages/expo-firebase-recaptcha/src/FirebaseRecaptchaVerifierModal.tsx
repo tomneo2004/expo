@@ -19,7 +19,6 @@ interface Props extends Omit<React.ComponentProps<typeof FirebaseRecaptcha>, 'on
   invisible?: boolean;
 }
 interface State {
-  token: string;
   visible: boolean;
   visibleLoaded: boolean;
   invisibleLoaded: boolean;
@@ -36,7 +35,6 @@ export default class FirebaseRecaptchaVerifierModal extends React.Component<Prop
   };
 
   state: State = {
-    token: '',
     visible: false,
     visibleLoaded: false,
     invisibleLoaded: false,
@@ -63,14 +61,12 @@ export default class FirebaseRecaptchaVerifierModal extends React.Component<Prop
     return new Promise((resolve, reject) => {
       if (this.props.invisible) {
         this.setState({
-          token: '',
           invisibleVerify: true,
           resolve,
           reject,
         });
       } else {
         this.setState({
-          token: '',
           visible: true,
           visibleLoaded: false,
           resolve,
