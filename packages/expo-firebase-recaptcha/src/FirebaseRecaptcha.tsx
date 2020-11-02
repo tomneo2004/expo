@@ -20,7 +20,7 @@ function getWebviewSource(
   firebaseVersion?: string,
   invisible?: boolean
 ) {
-  firebaseVersion = firebaseVersion || '7.12.0';
+  firebaseVersion = firebaseVersion || '8.0.0';
   return {
     baseUrl: `https://${firebaseConfig.authDomain}`,
     html: `
