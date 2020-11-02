@@ -6,6 +6,8 @@
 
 ### 🎉 New features
 
+- Add invisible reCAPTCHA. ([#9474](https://github.com/expo/expo/pull/9474) by [@IjzerenHein](https://github.com/IjzerenHein))
+
 ### 🐛 Bug fixes
 
 ## 1.2.0 — 2020-08-18
