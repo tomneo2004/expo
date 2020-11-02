@@ -35,6 +35,7 @@ function getWebviewSource(
   <style>
     html, body {
       height: 100%;
+      ${invisible ? `padding: 0; margin: 0;` : ``}
     }
     #recaptcha-btn {
       width: 100%;
