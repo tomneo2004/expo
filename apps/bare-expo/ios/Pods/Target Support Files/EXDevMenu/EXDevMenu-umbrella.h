@@ -10,6 +10,8 @@
 #endif
 #endif
 
+#import "DevMenuRCTBridge.h"
+#import "DevMenuRCTDevSettings.h"
 #import "DevMenuRootView.h"
 #import "DevMenuVendoredModulesUtils.h"
 #import "EXDevMenu-Bridging-Header.h"
