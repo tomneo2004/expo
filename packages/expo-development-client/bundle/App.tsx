@@ -8,8 +8,9 @@ import {
   SafeAreaView,
   StatusBar,
   StyleSheet,
-  Button,
   TextInput,
+  Platform,
+  TouchableOpacity,
 } from 'react-native';
 
 const DevelopmentClient = NativeModules.EXDevelopmentClient;
@@ -17,7 +18,7 @@ const DevelopmentClient = NativeModules.EXDevelopmentClient;
 // Use development client native module to load app at given URL, notifying of
 // errors
 
-const loadAppFromUrl = async (url: string) => {
+const loadAppFromUrl = async (url: string): bool => {
   url = url.replace(/^exp:\/\//, 'http://');
   try {
     const headResponse = await fetch(url, { method: 'HEAD' });
@@ -32,10 +33,22 @@ const loadAppFromUrl = async (url: string) => {
       // It's (maybe) a raw React Native bundle
       await DevelopmentClient.loadApp(url, {});
     }
+    return true;
   } catch (e) {
     Alert.alert('Error loading app', e.toString());
+    return false;
   }
 };
+
+//
+// Reusable button for below code
+//
+
+const Button = ({ label, onPress }) => (
+  <TouchableOpacity style={styles.buttonContainer} onPress={onPress}>
+    <Text style={styles.buttonText}>{label}</Text>
+  </TouchableOpacity>
+);
 
 //
 // Super barebones UI supporting at least loading an app from a QR
@@ -48,8 +61,16 @@ const App = () => {
   const [loading, setLoading] = React.useState(false);
   const [textInputUrl, setTextInputUrl] = React.useState('');
 
+  const tryLoadAppFromUrl = (url: string) => {
+    (async () => {
+      if (!await loadAppFromUrl(url)) {
+        setLoading(false);
+      }
+    })();
+  };
+
   const onBarCodeScanned = ({ data }: { data: string }) => {
-    loadAppFromUrl(data);
+    tryLoadAppFromUrl(data);
     setLoading(true);
   };
 
@@ -62,7 +83,7 @@ const App = () => {
   };
 
   const onPressGoToUrl = () => {
-    loadAppFromUrl(textInputUrl);
+    tryLoadAppFromUrl(textInputUrl);
     setLoading(true);
   };
 
@@ -79,29 +100,33 @@ const App = () => {
             <View style={styles.barCodeScannerContainer}>
               <BarCodeScanner onBarCodeScanned={onBarCodeScanned} style={styles.barCodeScanner} />
             </View>
-            <View style={styles.buttonContainer}>
-              <Button onPress={onPressCancelScan} title="Cancel" />
-            </View>
+            <Button onPress={onPressCancelScan} label="Cancel" />
           </React.Fragment>
         ) : (
           <React.Fragment>
-            <Text style={styles.headingText} onPress={onPressScan}>
-              Expo Development Client
-            </Text>
-            <View style={styles.buttonContainer}>
-              <Button onPress={onPressScan} title="Scan QR code" />
+            <Text style={styles.headingText}>Connect to a development server</Text>
+
+            <Text style={styles.infoText}>Start a local server with:</Text>
+            <View style={styles.codeBox}>
+              <Text style={styles.codeText}>expo start --bare</Text>
             </View>
+
+            <Text style={styles.connectText}>Connect this client</Text>
+            <Button onPress={onPressScan} label="Scan QR code" />
+
+            <Text style={[styles.infoText, { marginTop: 12 }]}>
+              Or, enter the URL of a local bundler manually:
+            </Text>
             <View style={styles.urlTextInputContainer}>
               <TextInput
                 style={styles.urlTextInput}
-                placeholder="Paste a URL"
+                placeholder="exp://192..."
+                placeholderTextColor="#b0b0ba"
                 value={textInputUrl}
                 onChangeText={text => setTextInputUrl(text)}
               />
             </View>
-            <View style={styles.buttonContainer}>
-              <Button onPress={onPressGoToUrl} title="Go to URL" />
-            </View>
+            <Button onPress={onPressGoToUrl} label="Connect to URL" />
           </React.Fragment>
         )}
       </View>
@@ -112,7 +137,7 @@ const App = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#ffffff',
   },
   container: {
     flex: 1,
@@ -140,25 +165,55 @@ const styles = StyleSheet.create({
   },
 
   buttonContainer: {
-    alignSelf: 'flex-start',
-    marginTop: 8,
+    backgroundColor: '#4630eb',
+    borderRadius: 4,
+    padding: 12,
+    marginVertical: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#ffffff',
+    fontSize: 16,
   },
 
   headingText: {
-    fontSize: 32,
-    marginBottom: 12,
+    fontSize: 22,
+    fontWeight: '600',
+    marginBottom: 20,
+  },
+  infoText: {
+    fontSize: 16,
+    marginBottom: 10,
   },
 
-  urlTextInputContainer: {
-    marginTop: 24,
+  codeBox: {
+    backgroundColor: '#f5f5f7',
+    borderWidth: 1,
+    borderColor: '#dddde1',
+    padding: 14,
+    borderRadius: 4,
+    marginBottom: 20,
   },
+  codeText: {
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    fontSize: 14,
+  },
+
+  connectText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+
   urlTextInput: {
     width: '100%',
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 6,
-    fontSize: 18,
+
+    fontSize: 16,
     padding: 8,
+
+    borderWidth: 1,
+    borderColor: '#dddde1',
+    borderRadius: 4,
   },
 });
 
